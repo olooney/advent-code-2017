@@ -3,27 +3,26 @@ from itertools import islice
 import sys
 import numpy as np
 
-def location(address):
-    ''' returns pair (x,y) for the spiral address'''
-    p = (0,0)
-    min_square = int(floor(sqrt(address)))
-    odd_square = min_square if min_square % 2 else min_square -1
-    odd_square_x = (odd_square -1)//2
-    odd_square_y = -odd_square_y
-    p = (odd_square_x+1, odd_square_y)
+def no_op(*args, **kwargs):
+    pass
 
-    base_address = odd_square**2 + 1
-    offset = address - base_address
-    edge_length = odd_square + 2
+memory = {
+        (0,0): 1
+}
 
-    # first side is 1 short, last side is one long...
-    if offset < side_length -1:
-        return (p[0], p[1] + offset)
-    else:
-        p = (p[0], p[1] + side_length-2)
+def neighbors(p):
+    yield (p[0], p[1]+1)
+    yield (p[0], p[1]-1)
+    yield (p[0]+1, p[1])
+    yield (p[0]-1, p[1])
 
+    yield (p[0]-1, p[1]-1)
+    yield (p[0]-1, p[1]+1)
+    yield (p[0]+1, p[1]-1)
+    yield (p[0]+1, p[1]+1)
 
 def spiral_instructions():
+    stride = 1
     while True:
         yield 'r', stride
         yield 'u', stride
@@ -34,23 +33,62 @@ def spiral_instructions():
 
 def follow(instructions, initial_position=None, until_address=sys.maxsize):
     address = 1
-    p = initial_position or (0, 0)
+    p = list(initial_position) if initial_position else [0, 0]
     for dir, stride in instructions:
         if address + stride >= until_address:
-            stride = until_address - stride
+            stride = until_address - address
 
         if dir == 'r': p[0] += stride
         elif dir == 'l': p[0] -= stride
-        elif dir == 'u': p[1] -= stride
-        elif dir == 'd': p[1] += stride
+        elif dir == 'u': p[1] += stride
+        elif dir == 'd': p[1] -= stride
         else:
             raise ValueError("unknown direction")
 
         address += stride
         if address == until_address:
             break
-    return p
+    return p, address
 
 
 
+def visit(instructions, initial_position=None, until_address=sys.maxsize, visitor=no_op):
+    address = 1
+    p = list(initial_position) if initial_position else [0, 0]
+    for dir, stride in instructions:
+
+        while stride:
+            if dir == 'r': p[0] += 1
+            elif dir == 'l': p[0] -= 1
+            elif dir == 'u': p[1] += 1
+            elif dir == 'd': p[1] -= 1
+            else:
+                raise ValueError("unknown direction")
+
+            stride -= 1
+            address += 1
+            ret = visitor(p, address)
+            if ret:
+                return ret
+            if address >= until_address:
+                return p, address
+
+    return p, address
+
+def stress_memory(puzzle_input):
+
+    def stressful_visitor(p, addr):
+        p = tuple(p)
+        if p not in memory:
+            value = sum(memory.get(np, 0) for np in neighbors(p))
+            memory[p] = value
+            if value > puzzle_input:
+                return value, p, addr
+
+    value, p, addr = visit(spiral_instructions(), visitor=stressful_visitor)
+    #print(value, p, addr)
+    return value
+
+if __name__ == '__main__':
+    print stress_memory(325489)
 
