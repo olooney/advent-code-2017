@@ -22,7 +22,7 @@ int jmp(std::vector<int> mem) {
 	int memsize = mem.size();
 
 	while ( pc >=0 and pc < memsize ) {
-		dump(mem);
+		// dump(mem, pc);
 		int offset = mem[pc];
 		mem[pc]++;
 		steps++;
@@ -34,9 +34,8 @@ int jmp(std::vector<int> mem) {
 int main() {
     // read from stdin
 	std::vector<int> mem;
-	while ( std::cin ) {
-		int m;
-		std::cin >> m;
+    int m;
+	while ( std::cin >> m ) {
 		mem.push_back(m);
 	}
 
