@@ -5,12 +5,12 @@ int digit(char c) {
     return (int)c - (int)'0';
 }
 
-int f(const char* digits) {
+int f(const char* digits, int offset=1) {
     size_t len = strlen(digits);
     int sum = 0;
     for ( size_t i=0; i < len; i++ ) {
         int d = digit(digits[i]);
-        int nd = digit(digits[(i+1)%len]);
+        int nd = digit(digits[(i+offset)%len]);
         if ( d == nd ) {
             sum += d;
         }
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     if ( argc != 2 ) {
         std::cout << "USAGE: a 1122" << std::endl;
     } else {
-        std::cout << g(argv[1])<< std::endl;
+        std::cout << f(argv[1], strlen(argv[1])/2)<< std::endl;
     }
     return 0;
 }
