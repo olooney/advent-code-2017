@@ -8,7 +8,7 @@
 
 using Banks = std::vector<int>;
 
-int balance(Banks banks);
+int balance(Banks& banks);
 std::ostream& operator<<(std::ostream& out, const Banks& banks);
 
 int main(int argc, char* argv[]) {
@@ -29,19 +29,23 @@ int main(int argc, char* argv[]) {
     std::istream_iterator<int> begin(fin), end;
     std::vector<int> banks(begin, end);
 
-    // compute the number of cycles before repeated state.
+    // compute the number of cycles before the first repeated state.
     int cycles = balance(banks);
     std::cout << cycles << std::endl;
+
+    // compute the number of cycles from repeated state to repeated state.
+    int loop_cycles = balance(banks);
+    std::cout << loop_cycles << std::endl;
 
     return 0;
 }
 
-int balance(Banks banks) {
+int balance(Banks& banks) {
     std::set<Banks> visited_states;
     
     int cycles = 0;
     while ( visited_states.find(banks) == visited_states.end() ) {
-        std::cerr << banks;
+        //std::cerr << banks;
 
         // bookkeeping 
         visited_states.insert(banks);
@@ -60,7 +64,7 @@ int balance(Banks banks) {
             blocks--;
         }
     }
-    std::cerr << banks;
+    // std::cerr << banks;
     return cycles;
 }
 
