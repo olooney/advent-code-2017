@@ -1,6 +1,6 @@
 import re
 import sys
-from statistics import median
+from statistics import mode
 
 input_regex = re.compile(r'^(?P<name>\w+) \((?P<weight>\d+)\)( -> (?P<children>\w+(, \w+)*))?\n?$')
 
@@ -108,7 +108,7 @@ def find_unbalanced(plate):
         return None
 
     # maybe it's us...
-    correct_total_weight = int(median(child.total_weight for child in plate.children))
+    correct_total_weight = int(mode(child.total_weight for child in plate.children))
     # TODO: this is kind of ambiguous in the case of exactly two children.
     # which one do we "fix"?
     for child in plate.children:
