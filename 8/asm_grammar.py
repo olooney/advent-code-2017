@@ -1,6 +1,5 @@
 import sys, traceback
 import pyparsing
-from pprint import pprint
 from pyparsing import Optional, Word, Literal, Forward, alphas, nums, \
     Group, OneOrMore, ZeroOrMore, oneOf, delimitedList, restOfLine, Regex
 from asm_ast import Context, Statement, Condition
@@ -39,16 +38,5 @@ def parse(src):
     '''returns a list of Statement objects parsed from the input string.'''
     return grammar.parseString(src).asList()
 
-
-if __name__ == '__main__':
-    import sys
-    src = sys.stdin.read()
-    statements = parse(src)
-    context = Context()
-    for statement in statements:
-        print(statement)
-        statement.eval(context)
-        pprint(context)
-    print('max register value: {}'.format(max(context.values())))
-
+__all__ = ['parse']
 
