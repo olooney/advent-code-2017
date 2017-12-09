@@ -1,3 +1,4 @@
+import sys, traceback
 import pyparsing
 from pprint import pprint
 from pyparsing import Optional, Word, Literal, Forward, alphas, nums, \
@@ -7,8 +8,15 @@ from asm_ast import Context, Statement, Condition
 # short-hand utility functions
 L = Literal
 Ls = lambda expr: L(expr).suppress()
+
 def make(cls):
-    return lambda token: cls(*token.asList())
+    def maker(token):
+        try:
+            return cls(*token[0].asList())
+        except:
+            import sys
+            traceback.print_exc(file=sys.stderr)
+    return maker
 
 # atomic
 register = Word(alphas)
@@ -39,8 +47,8 @@ if __name__ == '__main__':
     context = Context()
     for statement in statements:
         print(statement)
-        statements.eval(context)
+        statement.eval(context)
         pprint(context)
-    print('max register value: ' + max(context.values()))
+    print('max register value: {}'.format(max(context.values())))
 
 
