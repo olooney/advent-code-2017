@@ -1,4 +1,6 @@
-b inc 5 if a > 1
+b inc 5 if a > 1  // TODO: remove this useless instruction
 a inc 1 if b < 5
+
+/* dec of negative could be rewritten to positive... */
 c dec -10 if a >= 1
 c inc -20 if c == 10
