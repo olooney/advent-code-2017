@@ -98,13 +98,27 @@ def movify(path):
     except StopIteration:
         pass
 
+def furthest(moves):
+    largest_distance = 0
+    furthest_point = (0,0)
+    position = (0,0)
+    for move in moves:
+        move_vector = compass(move)
+        position = hex_normalize(vector_add(position, move_vector))
+        if distance( (0,0), position) > largest_distance:
+            largest_distance = distance( (0,0), position)
+            furthest_point = position
+    return furthest_point
+
+
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
         fin = open(sys.argv[1])
     else:
         fin = sys.stdin
     moves = [m.strip() for m in fin.read().split(',')]
-    goal = reduce(vector_add, (compass(m) for m in moves))
+    #goal = reduce(vector_add, (compass(m) for m in moves))
+    goal = furthest(moves)
     print('goal point: {}'.format(goal))
     path = a_star((0,0), goal)
     #print(path)
