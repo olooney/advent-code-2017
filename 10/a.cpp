@@ -7,6 +7,12 @@
 #include <algorithm>
 #include <stdexcept>
 
+std::string hex(int n) {
+    char buffer[10];
+	sprintf(buffer, "%02x", n);
+	return std::string(buffer);  
+}
+
 class KnottedLoop {
 public:
 	std::vector<int> knots;
@@ -33,12 +39,39 @@ public:
 		skip_size++;
 	}
 
-	int hash() const {
+	void many_twists(std::vector<int> lengths, int repeat) {
+	    for (int i=0; i < repeat; i++ ) {
+			for ( int length : lengths ) {
+				half_twist(length);
+			}
+		}
+	}
+
+	int get_hash() const {
 		if ( knots.size() >= 2 ) {
 			return knots[0] * knots[1];
 		} else {
 			throw std::runtime_error("knot loop is to short to hash!\n");
 		}
+	}
+
+	std::string get_dense_hash() const {
+		std::string dense_hash;
+		int i=0;
+		int block = 0;
+		for ( knot : knots ) {
+			if ( i % 16 == 0 ) {
+			    block = knot;
+			} else {
+			    block ^= knot;
+				if ( i % 16 == 15 ) {
+				    dense_hash.append(hex(block));
+					block = 0;
+				}
+			}
+		    i++;
+		}
+		return dense_hash;
 	}
 
 	void dump(std::ostream& out, int length=0) {
@@ -57,6 +90,14 @@ public:
 	
 };
 
+void read_formatted_file(std::istream& fin) {
+	// read input file
+    int knots_size = 0;
+	fin >> knots_size;
+	std::vector<int> twists;
+	int twist;
+	while ( fin >> twist ) twists.push_back(twist);
+}
 
 int main(int argc, char** argv) {
 	// parse command line arguments
@@ -71,13 +112,18 @@ int main(int argc, char** argv) {
 	    std::cerr << "unable to open input file \"" << argv[1] << "\"." << std::endl;
 		return 1;
 	}
-
-	// read input file
-    int knots_size = 0;
-	fin >> knots_size;
+	char twist;
 	std::vector<int> twists;
-	int twist;
-	while ( fin >> twist ) twists.push_back(twist);
+	std::string line;
+	std::getline(fin, line);
+	for ( char ch : line ) twists.push_back(static_cast<int>(ch));
+	twists.push_back(17);
+	twists.push_back(31);
+	twists.push_back(73);
+	twists.push_back(47);
+	twists.push_back(23);
+	
+	int knots_size = 256;
 
 	// verify we've read the input correctly
 	std::cout << "knots size: " << knots_size << "\ntwists: ";
@@ -85,12 +131,11 @@ int main(int argc, char** argv) {
 	std::cout << std::endl;
 
 	KnottedLoop knots(knots_size);
-	for ( int twist_length : twists ) {
-		knots.dump(std::cout, twist_length);
-		knots.half_twist(twist_length);
-	}
+	knots.many_twists(twists, 64);
+	std::cout << "sparse hash:\n";
 	knots.dump(std::cout);
-	std::cout << "hash: " << knots.hash() << std::endl;
+	std::cout << "check hash: " << knots.get_hash() << std::endl;
+	std::cout << "dense hash: \"" << knots.get_dense_hash() << "\"" << std::endl;
 
 	fin.close();
 	return 0;
