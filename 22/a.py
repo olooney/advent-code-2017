@@ -75,6 +75,34 @@ class Virus:
         self.toggle_infection()
         self.move()
 
+class EvolvedVirus(Virus):
+    def toggle_infection(self):
+        state = self.grid[self.y][self.x] 
+        if state == '.': 
+            self.grid[self.y][self.x] = 'W' 
+        elif state == 'W':
+            self.grid[self.y][self.x] = '#' 
+            self.infections_caused += 1
+        elif state == '#':
+            self.grid[self.y][self.x] = 'F' 
+        elif state == 'F':
+            self.grid[self.y][self.x] = '.' 
+        else:
+            raise ValueError("unexpected state")
+
+    def conditional_turn(self):
+        state = self.grid[self.y][self.x] 
+        if state == '.': 
+            self.turn_left()
+        elif state == 'W':
+            pass
+        elif state == '#':
+            self.turn_right()
+        elif state == 'F':
+            self.turn_right()
+            self.turn_right()
+        else:
+            raise ValueError("unexpected state")
 
 def main(filename, N):
     N = int(N)
@@ -84,10 +112,10 @@ def main(filename, N):
     blit(grid, img, (corner, corner))
     #write_image(grid)
     center = ((len(grid)-1)//2, (len(grid)-1)//2)
-    virus = Virus(center, grid)
+    virus = EvolvedVirus(center, grid)
     for iteration in range(1,N+1):
         virus.work()
-        if iteration % 100 == 0 or iteration == N:
+        if iteration % 10000 == 0 or iteration == N:
             #print("\nafter {} iterations:".format(iteration))
             #write_image(grid)
             print("virus infected {} cells after {} iterations".format(virus.infections_caused, iteration))
