@@ -1,0 +1,83 @@
+set b 93
+set c b
+jnz a 2
+jnz 1 5
+mul b 100
+sub b -100000
+set c b
+sub c -17000       # 5-8 debug-only setup initialized: a=1 b=109300 c=126300
+set f 1            # do { f=1;
+set d 2            #     d = 2;
+set e 2            #     do { e = 2;
+set g d            |         do { 
+mul g e            |    
+sub g b            |    
+jnz g 2            #             if ( d*e != b ) {
+set f 0            #               f = 0; }
+sub e -1           #             e++;
+set g e            |             
+sub g b            |        
+jnz g -8           #         } while ( e != b );
+sub d -1           #         d++;
+set g d            |    
+sub g b            |    
+jnz g -13          #     } while ( b != d );
+jnz f 2            #     if ( f != 0 ) {
+sub h -1           #         h++; }
+set g b            |
+sub g c            |
+jnz g 2            #     if ( b != c ) {
+jnz 1 3            |         exit(0); }
+sub b -17          #     b += 17;
+jnz 1 -23          # while ( true );
+
+/* formatted C */
+int main() { 
+    int a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0;
+    a=1; 
+    b=109300;
+    c=126300;
+    for ( b=109300; b != 126300; b += 17 ) {
+        f = 1;
+        for ( d=2; d != b; d++ ) {
+            for ( e=2; e != b; e++ ) {
+                if ( d*e != b ) f = 0;
+            } 
+        } 
+        if ( f !=0 ) h++; 
+        if ( b != c ) return 0;
+    }
+    return 0;
+}
+
+/* more formatting */
+int main() { 
+    int a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0;
+    a=1; 
+    b=109300;
+    c=126300;
+    for ( b=109300; b != 126300; b += 17 ) {
+        if ( not is_prime(b) ) h++; 
+        if ( b != c ) return 0;
+    }
+    return 0;
+}
+
+int is_prime(int b) {
+    int f = 1;
+    for ( d=2; d != b; d++ ) {
+        for ( e=2; e != b; e++ ) {
+            if ( d*e != b ) f = 0;
+        } 
+    } 
+    return f;
+}
+
+// program counts composite (non-prime) numbers between 109300 and 126300 stepping by 17.
+// 4X: d < sqrt(b), e < sqrt(b)
+// 4X: early exit when not prime
+// 2X: e >= d
+// 10X: introduce modulo assembly instruction
+// 10X: quickly check if d and e are prime themselves.
+
+
